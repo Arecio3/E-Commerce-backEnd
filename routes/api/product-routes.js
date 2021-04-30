@@ -114,12 +114,13 @@ router.delete('/:id', async(req, res) => {
       }
     });
     if(!diePro) {
-      res.status(404).json({message: "No Product found with that id"})
+      res.status(400).json({message: "No Product found with that id"})
       return;
     }
     res.status(200).json(diePro);
   } catch (err) {
-    res.status(400).json(err)
+    console.log(err);
+    res.status(500).json(err)
   }
 });
 
