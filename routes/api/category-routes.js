@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   // be sure to include its associated Products
   try {
     const catData = await Category.findAll({
-      include: [{ model: Product, as: 'product_tags'}],
+      include: [Product],
     });
       res.status(200).json(catData);
     } catch (err) {
@@ -16,56 +16,63 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   // find one category by its `id` value
   // be sure to include its associated Products
-  Category.findByPk(req.params.id, {
-    include: [{ model: Product }],
-  }).then((categoryData) => {
-    res.json(categoryData);
-  })
-  .catch((err) => {
-    res.json(err);
-  })
-  
+try {
+  const catData = await Category.findByPk(req.params.id, {
+    include: [ Product ],
+  });
+  res.status(200).json(catData)
+  } catch (err) {
+    res.status(500).json(err);
+}
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   // create a new category
-  Category.create(req.body).then((newCategory) => {
-    res.json(newCategory);
-  })
-  .catch((err) => {
-    res.json(err);
-  })
+  try {
+   const newCat = await Category.create(req.body)
+      res.status(200).json(newCat);
+    } catch (err) {
+      res.status(400).json(err);
+  }
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   // update a category by its `id` value
-  Category.update(
+ try {
+  const upCat = await Category.update(
     {
     category_name: req.body.category_name,
     },
     {
       where: {
       id: req.params.id
-    }}).then((updatedCat) => {
-      res.json(updatedCat)
-    })
-    .catch((err) => res.json(err))
+    }
+  }) 
+  res.status(200).json(upCat)
+    } catch (err) {
+      res.status(400).json(err)
+    } 
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   // delete a category by its `id` value
-  Category.destroy({
-    where: {
-      id: req.params.id,
+  try {
+    const dieCat = await Category.destroy({
+      where: {
+        id: req.params.id,
+      }
+    });
+    if(!dieCat) {
+      res.status(404).json({message: 'No tag with this Id'});
+      return;
     }
-  })
-  .then((deletedCategory) => {
-    res.json(deletedCategory)
-  })
-  .catch((err) => res.json(err));
+    res.status(200).json(dieCat); 
+  } catch (err) {
+    res.status(400).json
+  }
 });
 
 module.exports = router;
